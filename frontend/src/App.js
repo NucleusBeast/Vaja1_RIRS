@@ -1,6 +1,7 @@
-import { useState, useEffect } from 'react';
+import { useState } from 'react';
 import { BrowserRouter, Routes, Route } from 'react-router-dom';
 import { UserContext } from "./userContext";
+import { ThemeProvider } from './themeContext';
 import Header from "./components/Header";
 import Photos from "./components/Photos";
 import Login from "./components/Login";
@@ -41,23 +42,25 @@ function App() {
    */
   return (
     <BrowserRouter>
-      <UserContext.Provider value={{
-        user: user,
-        setUserContext: updateUserData
-      }}>
-        <div className="App">
-          <Header title="My application"></Header>
-          <Routes>
-            <Route path="/" exact element={<Photos />}></Route>
-            <Route path="/login" exact element={<Login />}></Route>
-            <Route path="/register" element={<Register />}></Route>
-            <Route path="/publish" element={<AddPhoto />}></Route>
-            <Route path="/profile" element={<Profile />}></Route>
-            <Route path="/logout" element={<Logout />}></Route>
-            <Route path={"/photo/:id"} element={<PhotoThread />}></Route>
-          </Routes>
-        </div>
-      </UserContext.Provider>
+      <ThemeProvider>
+        <UserContext.Provider value={{
+          user: user,
+          setUserContext: updateUserData
+        }}>
+          <div className="App min-h-screen bg-base-100 text-base-content">
+            <Header title="My application"></Header>
+            <Routes>
+              <Route path="/" exact element={<Photos />}></Route>
+              <Route path="/login" exact element={<Login />}></Route>
+              <Route path="/register" element={<Register />}></Route>
+              <Route path="/publish" element={<AddPhoto />}></Route>
+              <Route path="/profile" element={<Profile />}></Route>
+              <Route path="/logout" element={<Logout />}></Route>
+              <Route path={"/photo/:id"} element={<PhotoThread />}></Route>
+            </Routes>
+          </div>
+        </UserContext.Provider>
+      </ThemeProvider>
     </BrowserRouter>
   );
 }
