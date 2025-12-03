@@ -29,10 +29,22 @@ module.exports = {
           "error": "#e60041",
         },
       },
+      {
+        mythemedark: {
+          "primary": "#93c5fd",
+          "secondary": "#fcd34d",
+          "accent": "#f472b6",
+          "neutral": "#1f2937",
+          "base-100": "#111827",
+          "info": "#38bdf8",
+          "success": "#34d399",
+          "warning": "#fbbf24",
+          "error": "#f87171",
+        },
+      },
     ],
   },
   plugins: [
     require('daisyui'),
   ],
 }
-
