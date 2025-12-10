@@ -52,7 +52,7 @@ describe('Route integration tests (10)', () => {
     expect(res.body).toHaveProperty('_id');
     expect(res.body.content).toBe('Integration test comment');
     createdCommentId = res.body._id;
-    console.log(res);
+    //console.log(res);
   });
 
   // test('GET /comments/:id should return the created comment', async () => {
@@ -74,4 +74,10 @@ describe('Route integration tests (10)', () => {
     await request(app).delete(`/comments/${createdCommentId}`).expect(204);
     await request(app).get(`/comments/${createdCommentId}`).expect(200);
   });
+
+    afterAll(async () => {
+        if (app && app.stop) {
+            await app.stop();
+        }
+    });
 });
