@@ -30,3 +30,24 @@
                   NODE_ENV: test
                 run: |
                   timeout 10s npm test || (if [ $? -eq 124 ]; then echo "Tests timed out but considering it a success."; exit 0; else exit 1; fi)
+
+          test-frontend:
+            runs-on: ubuntu-latest
+            defaults:
+              run:
+                shell: bash
+                working-directory: ./frontend
+            steps:
+              - name: Checkout
+                uses: actions/checkout@v4
+
+              - name: Setup Node.js
+                uses: actions/setup-node@v4
+                with:
+                  node-version: '18.x'
+
+              - name: Install dependencies
+                run: npm i
+
+              - name: Run tests
+                run: npm test
