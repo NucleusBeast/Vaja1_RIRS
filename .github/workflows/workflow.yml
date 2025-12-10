@@ -4,7 +4,7 @@ name: CI - Tests
 on:
   push:
     branches:
-      - master
+      - test-branch
 
 jobs:
   test:
