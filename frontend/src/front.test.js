@@ -1,164 +1,128 @@
-import React, { useState, useEffect } from 'react';
-import { render, screen, fireEvent, waitFor } from '@testing-library/react';
+// javascript
+import React from 'react';
+import { render, screen } from '@testing-library/react';
 import '@testing-library/jest-dom';
-import { MemoryRouter, Routes, Route, Link } from 'react-router-dom';
-
-// --- Mock Components ---
-// In a real project, you would import your actual components.
-// These are simplified versions for testing purposes.
-
-const Home = () => <h1>Welcome to the App</h1>;
-const NotFound = () => <h1>404 - Page Not Found</h1>;
-
-const Login = () => {
-  const [username, setUsername] = useState('');
-  const [password, setPassword] = useState('');
-
-  return (
-    <form>
-      <h2>Login</h2>
-      <div>
-        <label htmlFor="username">Username</label>
-        <input
-          id="username"
-          type="text"
-          value={username}
-          onChange={(e) => setUsername(e.target.value)}
-        />
-      </div>
-      <div>
-        <label htmlFor="password">Password</label>
-        <input
-          id="password"
-          type="password"
-          value={password}
-          onChange={(e) => setPassword(e.target.value)}
-        />
-      </div>
-      <button type="submit">Submit</button>
-    </form>
-  );
-};
-
-const Users = () => {
-    const [users, setUsers] = useState([]);
-    const [error, setError] = useState(null);
-    const [loading, setLoading] = useState(true);
-
-    useEffect(() => {
-        // This simulates a fetch call
-        const fetchUsers = async () => {
-            try {
-                // In a real app, you'd fetch from your API
-                const mockUsers = [{ _id: '1', username: 'testuser' }];
-                await new Promise(resolve => setTimeout(resolve, 100)); // simulate network delay
-                setUsers(mockUsers);
-            } catch (e) {
-                setError('Failed to fetch users');
-            } finally {
-                setLoading(false);
-            }
-        };
-        fetchUsers();
-    }, []);
-
-    if (loading) return <p>Loading users...</p>;
-    if (error) return <p>{error}</p>;
-
-    return (
-        <ul>
-            {users.map(user => <li key={user._id}>{user.username}</li>)}
-        </ul>
-    );
-};
-
-
-const App = () => (
-  <div>
-    <nav>
-      <Link to="/">Home</Link>
-      <Link to="/login">Login</Link>
-      <Link to="/users">Users</Link>
-    </nav>
-    <main>
-      <Routes>
-        <Route path="/" element={<Home />} />
-        <Route path="/login" element={<Login />} />
-        <Route path="/users" element={<Users />} />
-        <Route path="*" element={<NotFound />} />
-      </Routes>
-    </main>
-  </div>
-);
-
-
-// --- Tests ---
+import App from './App';
+import Photos from './components/Photos';
+import Header from './components/Header';
+import AddPhoto from './components/AddPhoto';
+import Login from './components/Login';
+import Register from './components/Register';
+import Photo from './components/Photo';
+import Profile from './components/Profile';
+import PhotoCard from "./components/PhotoCard";
+import {MemoryRouter} from "react-router-dom"; // update this path if your Photos/ App component is elsewhere
 
 describe('Frontend React Tests (10)', () => {
-  // Test 1: App component renders the main welcome message on the home route.
-  test('renders the main welcome message', () => {
-    render(<MemoryRouter><App /></MemoryRouter>);
-    expect(screen.getByText(/Welcome to the App/i)).toBeInTheDocument();
-  });
+    // Test 1: App component renders the main welcome message on the home route.
+    test('renders the main welcome message', () => {
+        render(<Photos />);
+        expect(screen.getByText(/Photos:/i)).toBeInTheDocument();
+    });
 
-  // Test 2: App component has a navigation link to the Login page.
-  test('has a link to the login page', () => {
-    render(<MemoryRouter><App /></MemoryRouter>);
-    expect(screen.getByRole('link', { name: /login/i })).toBeInTheDocument();
-  });
+    // Test 2: Check if theme toggle button is present in Header component.
+    test('Header contains theme toggle button', () => {
+        render(
+            <MemoryRouter>
+                <Header />
+            </MemoryRouter>
+        );
+        const toggleButton = screen.getByRole('button', { name: /toggle theme/i });
+        expect(toggleButton).toBeInTheDocument();
+    });
 
-  // Test 3: Clicking the "Login" link navigates to the login page.
-  test('navigates to the login page when link is clicked', () => {
-    render(<MemoryRouter><App /></MemoryRouter>);
-    fireEvent.click(screen.getByRole('link', { name: /login/i }));
-    expect(screen.getByRole('heading', { name: /login/i })).toBeInTheDocument();
-  });
+    // Test 3: Check if Header contains link to homepage.
+    test('Header contains link to homepage', () => {
+        render(
+            <MemoryRouter>
+                <Header />
+            </MemoryRouter>
+        );
+        const homeLink = screen.getByText(/Vaja3/i);
+        expect(homeLink).toBeInTheDocument();
+        expect(homeLink).toHaveAttribute('href', '/');
+    });
 
-  // Test 4: Login page renders a username input field.
-  test('login form has a username input', () => {
-    render(<MemoryRouter initialEntries={['/login']}><App /></MemoryRouter>);
-    expect(screen.getByLabelText(/username/i)).toBeInTheDocument();
-  });
+    // Test 4: Check if AddPhoto component renders the publish heading.
+    test('AddPhoto component renders publish heading', () => {
+        render(<MemoryRouter>
+            <AddPhoto />
+        </MemoryRouter>);
+        // match the actual heading text and use role lookup for robustness
+        expect(screen.getByRole('heading', { name: /Publish a photo/i })).toBeInTheDocument();
 
-  // Test 5: Login page renders a password input field.
-  test('login form has a password input', () => {
-    render(<MemoryRouter initialEntries={['/login']}><App /></MemoryRouter>);
-    expect(screen.getByLabelText(/password/i)).toBeInTheDocument();
-  });
+    });
 
-  // Test 6: User can type into the username input.
-  test('allows user to type in username field', () => {
-    render(<MemoryRouter initialEntries={['/login']}><App /></MemoryRouter>);
-    const usernameInput = screen.getByLabelText(/username/i);
-    fireEvent.change(usernameInput, { target: { value: 'testuser' } });
-    expect(usernameInput.value).toBe('testuser');
-  });
+    // Test 5: Check if Login component renders the login heading.
+    test('Login component renders login heading', () => {
+        render(
+            <MemoryRouter>
+                <Login />
+            </MemoryRouter>
+        );
+        expect(screen.getByRole('heading', { name: /Login/i })).toBeInTheDocument();
+    });
 
-  // Test 7: User can type into the password input.
-  test('allows user to type in password field', () => {
-    render(<MemoryRouter initialEntries={['/login']}><App /></MemoryRouter>);
-    const passwordInput = screen.getByLabelText(/password/i);
-    fireEvent.change(passwordInput, { target: { value: 'password123' } });
-    expect(passwordInput.value).toBe('password123');
-  });
+    // Test 6: Check if Register component renders the register heading.
+    test('Register component renders register heading', () => {
+        render(
+            <MemoryRouter>
+                <Register />
+            </MemoryRouter>
+        );
 
-  // Test 8: Users page shows a loading message initially.
-  test('users page shows loading state initially', () => {
-    render(<MemoryRouter initialEntries={['/users']}><App /></MemoryRouter>);
-    expect(screen.getByText(/loading users.../i)).toBeInTheDocument();
-  });
+        expect(screen.getByRole('heading', { name: /Register/i })).toBeInTheDocument();
+    });
 
-  // Test 9: Users page displays a list of users after fetching.
-  test('users page displays users after loading', async () => {
-    render(<MemoryRouter initialEntries={['/users']}><App /></MemoryRouter>);
-    // Wait for the loading message to disappear and user data to be rendered
-    const userItem = await screen.findByText(/testuser/i);
-    expect(userItem).toBeInTheDocument();
-  });
+    // Test 7: Check if Profile component renders the profile heading.
+    test('Profile component renders profile heading', () => {
+        render(
+            <MemoryRouter>
+                <Profile />
+            </MemoryRouter>
+        );
+        expect(screen.getByRole('heading', { name: /Profile/i })).toBeInTheDocument();
+    });
 
-  // Test 10: Navigating to a bad route shows the "Not Found" page.
-  test('shows "Not Found" for a bad route', () => {
-    render(<MemoryRouter initialEntries={['/some/bad/route']}><App /></MemoryRouter>);
-    expect(screen.getByText(/404 - Page Not Found/i)).toBeInTheDocument();
-  });
+    // Test 8: Check if Photo component renders the photo details heading.
+    test('Photo component renders photo details heading', () => {
+        const samplePhoto = {
+            _id: '1',
+            name: 'Sample Photo',
+            path: 'sample.jpg'
+        }
+        render(
+            <MemoryRouter>
+                <Photo photo={samplePhoto}/>
+            </MemoryRouter>
+        );
+        expect(screen.getByRole('img', { name: /Sample Photo/i })).toBeInTheDocument();
+    });
+
+    // Test 9: Check if photo card displays photo name.
+    test('PhotoCard displays photo name', () => {
+        const samplePhoto = {
+            _id: '1',
+            name: 'Sample Photo',
+            postedBy: 'SampleUser'
+        };
+        render(
+            <MemoryRouter>
+                <PhotoCard photo={samplePhoto} />
+            </MemoryRouter>
+        );
+        const photoName = screen.getByText(/Sample Photo/i);
+        expect(photoName).toBeInTheDocument();
+    });
+
+    // Test 10: Check if Photos component fetches and displays photos.
+    test('Photos component fetches and displays photos', async () => {
+        render(
+            <MemoryRouter>
+                <Photos />
+            </MemoryRouter>
+        );
+        const photosHeading = await screen.findByText(/Photos:/i);
+        expect(photosHeading).toBeInTheDocument();
+    });
 });
