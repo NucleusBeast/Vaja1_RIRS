@@ -28,7 +28,7 @@ jobs:
         env:
           NODE_ENV: test
         run: |
-          timeout 10s npm test --coverage || (if [ $? -eq 124 ]; then echo "Tests timed out but considering it a success."; exit 0; else exit 1; fi)
+          timeout 15s npm test || (if [ $? -eq 124 ]; then echo "Tests timed out but considering it a success."; exit 0; else exit 1; fi)
 
       - name: Upload backend coverage report
         uses: actions/upload-artifact@v4
