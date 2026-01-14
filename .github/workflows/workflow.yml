@@ -1,10 +1,12 @@
-name: CI - Tests
+name: CI/CD Pipeline
 
 on:
   push:
     branches:
       - test-branch
       - master
+      - main
+      - production
 
 jobs:
   build-backend:
@@ -176,28 +178,118 @@ jobs:
       - name: Build Docker image
         run: |
           docker build -t vaja1-app:latest .
-          docker tag vaja1-app:latest docker.io/${{ secrets.DOCKER_USERNAME }}/vaja1-app:latest
-
-      - name: Push Docker image to Docker Hub
-        run: |
-          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/vaja1-app:latest
-
-      - name: Verify image is available on Docker Hub
-        env:
-          DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
-          DOCKER_PASS: ${{ secrets.DOCKER_TOKEN }}
-        run: |
-          status_code=$(curl -s -u "$DOCKER_USER:$DOCKER_PASS" -o /dev/null -w "%{http_code}" "https://hub.docker.com/v2/repositories/$DOCKER_USER/vaja1-app/tags/latest/")
-          echo "Docker Hub API status: $status_code"
-          if [ "$status_code" -ne 200 ]; then echo "Failed to verify Docker image on Docker Hub"; exit 1; fi
 
       - name: Save Docker image as tar
         run: |
-          docker save docker.io/${{ secrets.DOCKER_USERNAME }}/vaja1-app:latest -o vaja1-app-latest.tar
+          docker save vaja1-app:latest -o vaja1-app-latest.tar
 
       - name: Upload Docker image artifact
         uses: actions/upload-artifact@v4
         with:
           name: docker-image
           path: vaja1-app-latest.tar
+
+  deploy-github-pages:
+    runs-on: ubuntu-latest
+    needs: [test-backend, test-frontend]
+    permissions:
+      contents: read
+      pages: write
+      id-token: write
+    concurrency:
+      group: "pages"
+      cancel-in-progress: false
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Setup Pages
+        uses: actions/configure-pages@v4
+
+      - name: Create pages directory
+        run: |
+          mkdir -p _site
+          cp index.html _site/
+
+      - name: Upload artifact to GitHub Pages
+        uses: actions/upload-pages-artifact@v3
+        with:
+          path: '_site'
+
+      - name: Deploy to GitHub Pages
+        id: deployment
+        uses: actions/deploy-pages@v4
+
+  deploy-development:
+    runs-on: ubuntu-latest
+    needs: [docker-build, test-backend, test-frontend]
+    environment:
+      name: Development
+      url: https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/vaja1-app/tags
+    if: github.ref == 'refs/heads/main' || github.ref == 'refs/heads/master'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build and push Docker image (dev tag)
+        run: |
+          docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/vaja1-app:dev .
+          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/vaja1-app:dev
+
+      - name: Verify Development image on Docker Hub
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASS: ${{ secrets.DOCKER_TOKEN }}
+        run: |
+          status_code=$(curl -s -u "$DOCKER_USER:$DOCKER_PASS" -o /dev/null -w "%{http_code}" "https://hub.docker.com/v2/repositories/$DOCKER_USER/vaja1-app/tags/dev/")
+          echo "Docker Hub API status for dev tag: $status_code"
+          if [ "$status_code" -ne 200 ]; then echo "Failed to verify dev image on Docker Hub"; exit 1; fi
+          echo "✅ Development image successfully deployed to Docker Hub"
+
+  deploy-production:
+    runs-on: ubuntu-latest
+    needs: [docker-build, test-backend, test-frontend]
+    environment:
+      name: Production
+      url: https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/vaja1-app/tags
+    if: github.ref == 'refs/heads/production'
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v4
+
+      - name: Set up Docker Buildx
+        uses: docker/setup-buildx-action@v2
+
+      - name: Login to Docker Hub
+        uses: docker/login-action@v2
+        with:
+          username: ${{ secrets.DOCKER_USERNAME }}
+          password: ${{ secrets.DOCKER_TOKEN }}
+
+      - name: Build and push Docker image (prod tag)
+        run: |
+          docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/vaja1-app:prod .
+          docker build -t docker.io/${{ secrets.DOCKER_USERNAME }}/vaja1-app:latest .
+          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/vaja1-app:prod
+          docker push docker.io/${{ secrets.DOCKER_USERNAME }}/vaja1-app:latest
+
+      - name: Verify Production image on Docker Hub
+        env:
+          DOCKER_USER: ${{ secrets.DOCKER_USERNAME }}
+          DOCKER_PASS: ${{ secrets.DOCKER_TOKEN }}
+        run: |
+          status_code=$(curl -s -u "$DOCKER_USER:$DOCKER_PASS" -o /dev/null -w "%{http_code}" "https://hub.docker.com/v2/repositories/$DOCKER_USER/vaja1-app/tags/prod/")
+          echo "Docker Hub API status for prod tag: $status_code"
+          if [ "$status_code" -ne 200 ]; then echo "Failed to verify prod image on Docker Hub"; exit 1; fi
+          echo "✅ Production image successfully deployed to Docker Hub"
+
 

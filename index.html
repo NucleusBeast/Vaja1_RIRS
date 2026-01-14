@@ -1,0 +1,213 @@
+<!DOCTYPE html>
+<html lang="sl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Vaja1_RIRS - Projekt</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 20px;
+        }
+
+        .container {
+            background: white;
+            border-radius: 20px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            max-width: 800px;
+            width: 100%;
+            padding: 50px;
+            animation: fadeIn 0.8s ease-in;
+        }
+
+        @keyframes fadeIn {
+            from {
+                opacity: 0;
+                transform: translateY(30px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+
+        h1 {
+            color: #667eea;
+            font-size: 2.5em;
+            margin-bottom: 10px;
+            text-align: center;
+        }
+
+        .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 1.1em;
+            margin-bottom: 40px;
+            padding-bottom: 20px;
+            border-bottom: 2px solid #f0f0f0;
+        }
+
+        h2 {
+            color: #764ba2;
+            font-size: 1.8em;
+            margin-top: 30px;
+            margin-bottom: 15px;
+            display: flex;
+            align-items: center;
+        }
+
+        h2::before {
+            content: "▸";
+            margin-right: 10px;
+            color: #667eea;
+        }
+
+        .team-list {
+            list-style: none;
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 15px;
+            margin: 20px 0;
+        }
+
+        .team-list li {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 20px;
+            border-radius: 10px;
+            font-size: 1.1em;
+            text-align: center;
+            box-shadow: 0 4px 15px rgba(102, 126, 234, 0.3);
+            transition: transform 0.3s ease, box-shadow 0.3s ease;
+        }
+
+        .team-list li:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 6px 20px rgba(102, 126, 234, 0.5);
+        }
+
+        .description {
+            color: #444;
+            line-height: 1.8;
+            font-size: 1.1em;
+            text-align: justify;
+            background: #f9f9f9;
+            padding: 20px;
+            border-radius: 10px;
+            border-left: 4px solid #667eea;
+        }
+
+        .tech-stack {
+            display: flex;
+            flex-wrap: wrap;
+            gap: 10px;
+            margin-top: 20px;
+        }
+
+        .tech-badge {
+            background: #e0e7ff;
+            color: #667eea;
+            padding: 8px 16px;
+            border-radius: 20px;
+            font-size: 0.9em;
+            font-weight: 600;
+        }
+
+        .footer {
+            margin-top: 40px;
+            padding-top: 20px;
+            border-top: 2px solid #f0f0f0;
+            text-align: center;
+            color: #999;
+            font-size: 0.9em;
+        }
+
+        .badge {
+            display: inline-block;
+            background: #10b981;
+            color: white;
+            padding: 5px 15px;
+            border-radius: 15px;
+            font-size: 0.8em;
+            font-weight: 600;
+            margin-left: 10px;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>🚀 Vaja1_RIRS</h1>
+        <p class="subtitle">CI/CD Pipeline z Docker in GitHub Actions</p>
+
+        <h2>👥 Člani Ekipe</h2>
+        <ul class="team-list">
+            <li>👤 Filip</li>
+            <li>👤 Član 2</li>
+            <li>👤 Član 3</li>
+            <li>👤 Član 4</li>
+        </ul>
+
+        <h2>📖 Opis Projekta</h2>
+        <div class="description">
+            <p>
+                <strong>Vaja1_RIRS</strong> je popolna implementacija moderne CI/CD pipeline arhitekture z uporabo GitHub Actions,
+                Docker kontejnerizacije in avtomatiziranega deployementa. Projekt vključuje full-stack aplikacijo z React frontend-om
+                in Express.js backend-om, ki je nameščena preko Docker Hub-a na razvojno (Development) in produkcijsko (Production) okolje.
+            </p>
+            <br>
+            <p>
+                Pipeline vključuje avtomatizirano testiranje, code coverage analizo, gradnjo Docker slik, nalaganje na Docker Hub,
+                ter deployment na GitHub Pages. Produkcijsko okolje zahteva ročno odobritev pred deploymentom za dodatno varnost.
+            </p>
+        </div>
+
+        <h2>🛠️ Uporabljene Tehnologije</h2>
+        <div class="tech-stack">
+            <span class="tech-badge">React 18</span>
+            <span class="tech-badge">Express.js</span>
+            <span class="tech-badge">Node.js 18</span>
+            <span class="tech-badge">MongoDB</span>
+            <span class="tech-badge">Docker</span>
+            <span class="tech-badge">GitHub Actions</span>
+            <span class="tech-badge">GitHub Pages</span>
+            <span class="tech-badge">Jest</span>
+            <span class="tech-badge">TailwindCSS</span>
+            <span class="tech-badge">DaisyUI</span>
+        </div>
+
+        <h2>🎯 Funkcionalnosti CI/CD</h2>
+        <div class="description">
+            <ul style="list-style: none; padding-left: 0;">
+                <li>✅ Avtomatizirano testiranje (backend + frontend)</li>
+                <li>✅ Code coverage reports</li>
+                <li>✅ Dependency caching (node_modules)</li>
+                <li>✅ Multi-stage Docker build</li>
+                <li>✅ Docker Hub push (dev + prod tags)</li>
+                <li>✅ GitHub Pages deployment</li>
+                <li>✅ Environment-based deployments</li>
+                <li>✅ Manual approval za Production</li>
+            </ul>
+        </div>
+
+        <div class="footer">
+            <p>🔗 Deployed via GitHub Actions • 🐳 Containerized with Docker • 🚀 CI/CD Pipeline Active</p>
+            <p style="margin-top: 10px;">
+                <span class="badge">Development: Auto Deploy</span>
+                <span class="badge" style="background: #f59e0b;">Production: Manual Approval</span>
+            </p>
+        </div>
+    </div>
+</body>
+</html>
+
