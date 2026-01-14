@@ -5,16 +5,14 @@ function Comment(props) {
     const [likes, setLikes] = useState(props.comment.likes);
     const [hasLiked, setHasLiked] = useState(false);
 
-    const getUser = async function () {
-        const res = await fetch("http://localhost:3001/users/" + props.comment.author, {credentials: "include"});
-        const data = await res.json();
-        setCommentUser(data);
-        return commentUser;
-    }
-
     useEffect(() => {
+        const getUser = async function () {
+            const res = await fetch("http://localhost:3001/users/" + props.comment.author, {credentials: "include"});
+            const data = await res.json();
+            setCommentUser(data);
+        }
         getUser();
-    }, []);
+    }, [props.comment.author]);
 
     async function like(event) {
         event.preventDefault();

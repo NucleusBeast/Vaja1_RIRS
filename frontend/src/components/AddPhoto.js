@@ -21,12 +21,11 @@ function AddPhoto(props) {
         formData.append('name', name);
         formData.append('image', file);
         formData.append('description', description);
-        const res = await fetch('http://localhost:3001/photos', {
+        await fetch('http://localhost:3001/photos', {
             method: 'POST',
             body: formData,
             credentials: 'include'
         });
-        const data = await res.json();
 
         setUploaded(true);
     }

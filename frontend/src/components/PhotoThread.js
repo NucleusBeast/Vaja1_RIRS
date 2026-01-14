@@ -1,4 +1,4 @@
-import {useContext, useEffect, useState} from 'react';
+import {useContext, useEffect, useState, useCallback} from 'react';
 import {UserContext} from '../userContext';
 import {Navigate, useParams} from 'react-router-dom';
 import Photo from "./Photo";
@@ -12,14 +12,13 @@ function PhotoThread(props) {
     const [isLoading, setIsLoading] = useState(true); // Add this line
     const [comments, setComments] = useState([]);
     const [comment, setNewComment] = useState('');
-    const [hasLiked, setHasLiked] = useState(false);
     const [likes, setLikes] = useState(photo.likes);
 
-    const getComments = async function () {
+    const getComments = useCallback(async function () {
         const res = await fetch("http://localhost:3001/comments/" + photoId, {credentials: "include"});
         const data = await res.json();
         setComments(data);
-    }
+    }, [photoId]);
 
 
     useEffect(function () {
@@ -33,7 +32,7 @@ function PhotoThread(props) {
         }
         getPhoto();
         getComments();
-    }, []);
+    }, [photoId, getComments]);
 
     const handleCommentChange = (event) => {
         setNewComment(event.target.value);
@@ -42,7 +41,7 @@ function PhotoThread(props) {
     async function handleCommentSubmit(event) {
         event.preventDefault();
         // publish form data
-        const res = await fetch('http://localhost:3001/comments/', {
+        await fetch('http://localhost:3001/comments/', {
             method: 'POST',
             credentials: 'include',
             headers: {'Content-Type': 'application/json'},
@@ -51,13 +50,11 @@ function PhotoThread(props) {
             })
         });
 
-        const data = await res.json();
         getComments();
     }
 
     async function like(event) {
         event.preventDefault();
-        setHasLiked(true);
         const res = await fetch('http://localhost:3001/photos/like', {
             method: 'POST',
             credentials: 'include',
@@ -74,7 +71,6 @@ function PhotoThread(props) {
 
     async function dislike(event) {
         event.preventDefault();
-        setHasLiked(true);
         const res = await fetch('http://localhost:3001/photos/dislike', {
             method: 'POST',
             credentials: 'include',
