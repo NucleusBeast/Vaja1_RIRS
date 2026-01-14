@@ -89,4 +89,9 @@ app.use(function(err, req, res, next) {
   res.json(err);
 });
 
+// add a helper to stop the app during testing
+app.stop = function() {
+  mongoose.connection.close();
+};
+
 module.exports = app;
