@@ -260,7 +260,6 @@ jobs:
     needs: [docker-build, test-backend, test-frontend]
     environment:
       name: Production
-      url: https://hub.docker.com/r/${{ secrets.DOCKER_USERNAME }}/vaja1-app/tags
     if: github.ref == 'refs/heads/production'
     steps:
       - name: Checkout
