@@ -177,61 +177,16 @@ jobs:
           name: frontend-coverage-report
           path: frontend/coverage
 
-      - name: SonarCloud Scan
-        uses: SonarSource/sonarcloud-github-action@master
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-
-      - name: Wait for SonarCloud Quality Gate
-        run: |
-          echo "Waiting for SonarCloud to process results..."
-          sleep 10
-
-      - name: Check Quality Gate Status
+      - name: SonarQube Scan
+        uses: SonarSource/sonarqube-scan-action@v6
         env:
           SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
-        run: |
-          # Get the task ID from the report-task.txt file
-          TASK_URL=$(cat .scannerwork/report-task.txt | grep ceTaskUrl | cut -d'=' -f2-)
-          echo "Task URL: $TASK_URL"
-          
-          # Wait for task to complete and get analysis ID
-          max_attempts=30
-          attempt=0
-          while [ $attempt -lt $max_attempts ]; do
-            TASK_STATUS=$(curl -s -u "$SONAR_TOKEN:" "$TASK_URL" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
-            echo "Task status: $TASK_STATUS"
-            
-            if [ "$TASK_STATUS" = "SUCCESS" ]; then
-              ANALYSIS_ID=$(curl -s -u "$SONAR_TOKEN:" "$TASK_URL" | grep -o '"analysisId":"[^"]*"' | cut -d'"' -f4)
-              echo "Analysis ID: $ANALYSIS_ID"
-              break
-            elif [ "$TASK_STATUS" = "FAILED" ] || [ "$TASK_STATUS" = "CANCELED" ]; then
-              echo "SonarCloud task failed or was canceled"
-              exit 1
-            fi
-            
-            attempt=$((attempt + 1))
-            sleep 5
-          done
-          
-          if [ $attempt -eq $max_attempts ]; then
-            echo "Timeout waiting for SonarCloud task to complete"
-            exit 1
-          fi
-          
-          # Get quality gate status
-          QG_STATUS=$(curl -s -u "$SONAR_TOKEN:" "https://sonarcloud.io/api/qualitygates/project_status?projectKey=nucleusbeast" | grep -o '"status":"[^"]*"' | cut -d'"' -f4)
-          echo "Quality Gate Status: $QG_STATUS"
-          
-          if [ "$QG_STATUS" != "OK" ]; then
-            echo "❌ Quality Gate FAILED! Please fix the issues in SonarCloud dashboard."
-            echo "Visit: https://sonarcloud.io/dashboard?id=nucleusbeast"
-            exit 1
-          fi
-          
-          echo "✅ Quality Gate PASSED!"
+
+      - name: SonarQube Quality Gate Check
+        uses: SonarSource/sonarqube-quality-gate-action@v1
+        timeout-minutes: 5
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
 
   docker-build:
     runs-on: ubuntu-latest
